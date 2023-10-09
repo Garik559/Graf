@@ -49,7 +49,12 @@ namespace Graf
             {
                 Orient = graf.Orient;
                 Weight = graf.Weight;
-                adjacencyList = graf.adjacencyList;
+                adjacencyList = new Dictionary<int, Dictionary<int, int?>>(graf.adjacencyList);
+                foreach (var i in adjacencyList.Keys)
+                {
+                    adjacencyList[i] = new Dictionary<int, int?>(graf.adjacencyList[i]);
+                }
+                
             }
 
             // добавление вершины

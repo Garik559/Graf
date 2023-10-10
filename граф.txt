@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Reflection.PortableExecutable;
 
@@ -54,7 +56,7 @@ namespace Graf
                 {
                     adjacencyList[i] = new Dictionary<int, int?>(graf.adjacencyList[i]);
                 }
-                
+
             }
 
             // добавление вершины
@@ -70,6 +72,66 @@ namespace Graf
                 }
 
             }
+
+            // сохранение графа в файл
+            public void SaveGraf(string path)
+            {
+                using (StreamWriter writer = new StreamWriter(path, false))
+                {
+                    if (Weight)
+                    {
+                        writer.Write(Orient.ToString() + "; ");
+                        writer.WriteLine(Weight.ToString());
+                        foreach (var k in adjacencyList.Keys)
+                        {
+                            writer.Write(k + ": ");
+                            foreach (var k1 in adjacencyList[k])
+                            {
+                                writer.Write(k1.Key + " " + k1.Value + "; ");
+                            }
+                            writer.WriteLine();
+                        }
+                    }
+                    else
+                    {
+                        writer.Write(Orient.ToString() + "; ");
+                        writer.WriteLine(Weight.ToString());
+                        foreach (var k in adjacencyList.Keys)
+                        {
+                            writer.Write(k + ": ");
+                            foreach (var k1 in adjacencyList[k])
+                            {
+                                var lastPair = adjacencyList[k].Last();
+                                if ((k1.Key == lastPair.Key) && (k1.Value == lastPair.Value))
+                                {
+                                    writer.WriteLine(k1.Key + " " + 0);
+                                }
+                                else
+                                {
+                                    writer.Write(k1.Key + " " + 0 + "; ");
+                                }
+                                
+                            }
+
+                           // writer.WriteLine();
+                        }
+                        
+                    }
+                    
+
+                }
+                //using(StreamReader reader = new StreamReader(path))
+                //{
+                //    string? line;
+                //    while ((line = reader.ReadLine()) != null)
+                //    {
+                //        line = line.TrimEnd("; ");
+                //        Console.WriteLine(line);
+                //    }
+                //}
+                
+            }
+
 
             // добавление ребра 
             public bool AddEdge(int u, int v, int? w)
@@ -96,11 +158,11 @@ namespace Graf
                                 return true;
                             }
                         }
-                        
+
                     }
                     else
                     {
-                        if(w != 0)
+                        if (w != 0)
                         {
                             Console.WriteLine("Граф невзвешенный. Вес не нужен");
                         }
@@ -118,7 +180,7 @@ namespace Graf
                                 return true;
                             }
                         }
-                        
+
                     }
 
                 }
@@ -176,7 +238,6 @@ namespace Graf
 
             }
 
-
             public void PrintGraph()
             {
                 foreach (var ad in adjacencyList)
@@ -198,11 +259,10 @@ namespace Graf
             }
         }
 
-
         static void Main()
         {
 
-            var path =/* @"D:\Graf_4.txt";*/ /*@"D:\Graf_3.txt";*/  /*@"D:\Graf_2.txt";*/ @"D:\Graf_1.txt";
+            var path = @"D:\CopyGraf_1.txt";   /* @"D:\ИСП-41\Graf_4.txt";*/ /*@"D:\ИСП-41\Graf_3.txt";*/  /*@"D:\ИСП-41\Graf_2.txt";*/ /*@"D:\ИСП-41\Graf_1.txt";*/
             Graf graf = new Graf(path);
             bool flag = true;
             do
@@ -214,9 +274,9 @@ namespace Graf
                 Console.WriteLine("Добавить ребро----3");
                 Console.WriteLine("Удалить вершину---4");
                 Console.WriteLine("Удалить ребро-----5");
-                Console.WriteLine("Завершить---------6");
+                Console.WriteLine("Сохранить граф----6");
+                Console.WriteLine("Завершить---------7");
                 Console.WriteLine("____________________");
-
 
                 int a;
                 int.TryParse(Console.ReadLine(), out a);
@@ -236,7 +296,7 @@ namespace Graf
                         int v = int.Parse(Console.ReadLine());
                         Console.WriteLine("Введите вес, если необходимо (иначе Enter):");
                         int w;
-                        int.TryParse(Console.ReadLine(),out w);
+                        int.TryParse(Console.ReadLine(), out w);
                         graf.AddEdge(u, v, w);
                         break;
                     case 4:
@@ -251,6 +311,9 @@ namespace Graf
                         graf.RemoveEgde(u1, v1);
                         break;
                     case 6:
+                        graf.SaveGraf(path);
+                        break;
+                    case 7:
                         flag = false;
                         break;
                     default:
@@ -259,7 +322,6 @@ namespace Graf
                 }
 
             } while (flag == true);
-
 
         }
 

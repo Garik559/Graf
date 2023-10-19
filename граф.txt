@@ -5,17 +5,18 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection.PortableExecutable;
-
+ 
 namespace Graf
 {
     class Program
     {
-
+ 
         class Graf
         {
             private Dictionary<int, Dictionary<int, int?>> adjacencyList = new();
             private readonly bool Orient, Weight;
-
+ 
+            private bool Circle;
             // конструтор по умолчанию
             public Graf()
             {
@@ -23,36 +24,36 @@ namespace Graf
                 Weight = false;
                 adjacencyList = new Dictionary<int, Dictionary<int, int?>>();
             }
-
+ 
             public Graf(bool o, bool w)
             {
                 Orient = o;
                 Weight = w;
                 adjacencyList = new Dictionary<int, Dictionary<int, int?>>();
             }
-
+ 
             // конструктор
             public Graf(string path)
             {
                 string[] st = File.ReadAllLines(path);
                 Orient = bool.Parse(st[0].Split("; ")[0]);
                 Weight = bool.Parse(st[0].Split("; ")[1]);
-
+ 
                 for (int i = 1; i < st.Length; i++)
                 {
                     AddVert(int.Parse(st[i].Split(':')[0]));
                 }
-
+ 
                 for (int i = 1; i < st.Length; i++)
                 {
                     for (int j = 0; j < (st[i].Split(": ").Count() > 1 ? (st[i].Split(": ")[1].Split("; ")).Count() : 0); j++)
                     {
                         AddEdge((int.Parse(st[i].Split(": ")[0])), int.Parse(st[i].Split(": ")[1].Split("; ")[j].Split(" ")[0]), int.Parse(st[i].Split(": ")[1].Split("; ")[j].Split(" ")[1]));
                     }
-
+ 
                 }
             }
-
+ 
             // конструктор копирования
             public Graf(Graf graf)
             {
@@ -63,9 +64,9 @@ namespace Graf
                 {
                     adjacencyList[i] = new Dictionary<int, int?>(graf.adjacencyList[i]);
                 }
-
+ 
             }
-
+ 
             // добавление вершины
             public void AddVert(int u)
             {
@@ -77,9 +78,9 @@ namespace Graf
                 {
                     Console.WriteLine("Данная вершина существует");
                 }
-
+ 
             }
-
+ 
             // сохранение графа в файл
             public void SaveGraf(string path)
             {
@@ -135,12 +136,12 @@ namespace Graf
                         {
                             res += "\n";
                         }
-
+ 
                     }
                     File.WriteAllText(path, res);
                 }
             }
-
+ 
             // добавление ребра 
             public bool AddEdge(int u, int v, int? w)
             {
@@ -148,7 +149,7 @@ namespace Graf
                 {
                     if (Weight)
                     {
-
+ 
                         if (Orient)
                         {
                             adjacencyList[u][v] = w;
@@ -163,7 +164,7 @@ namespace Graf
                     }
                     else
                     {
-
+ 
                         if (Orient)
                         {
                             adjacencyList[u][v] = null;
@@ -176,7 +177,7 @@ namespace Graf
                             return true;
                         }
                     }
-
+ 
                 }
                 else
                 {
@@ -184,7 +185,7 @@ namespace Graf
                 }
                 return false;
             }
-
+ 
             //удаление ребра
             public void RemoveEgde(int u, int v)
             {
@@ -199,14 +200,14 @@ namespace Graf
                         adjacencyList[u].Remove(v);
                         adjacencyList[v].Remove(u);
                     }
-
+ 
                 }
                 else
                 {
                     Console.WriteLine("Не возможно удалить несуществующие ребро");
                 }
             }
-
+ 
             //удаление вершины
             public void RemoveVertix(int u)
             {
@@ -221,7 +222,7 @@ namespace Graf
                             {
                                 adjacencyList[v.Key].Remove(v2.Key);
                             }
-
+ 
                         }
                     }
                 }
@@ -229,13 +230,13 @@ namespace Graf
                 {
                     Console.WriteLine("Не возможно удалить не существующую вершину");
                 }
-
+ 
             }
-
+ 
             // полный граф
             public static void BoldGraf(Graf graf)
             {
-
+ 
                 foreach (var k in graf.adjacencyList)
                 {
                     foreach (var l in graf.adjacencyList)
@@ -257,7 +258,7 @@ namespace Graf
                     }
                 }
             }
-
+ 
             // дополнение графа
             public static void DopGraf(Graf graf)
             {
@@ -286,29 +287,28 @@ namespace Graf
                     }
                 }
             }
-
+ 
             // объединение графов
             public static bool EnjoiGraf(Graf graf1, Graf graf2, out Graf gr)
             {
                 gr = new Graf(graf1.Orient, graf1.Weight);
-
+ 
                 if (graf1.Orient != graf2.Orient || graf1.Weight != graf2.Weight)
                     return false;
-
+ 
                 foreach (var k in graf1.adjacencyList)
                     if (graf2.adjacencyList.ContainsKey(k.Key)) return false;
-
-
+ 
                 foreach (var k in graf1.adjacencyList)
                     gr.adjacencyList.Add(k.Key, k.Value);
-
+ 
                 foreach (var k in graf2.adjacencyList)
                     gr.adjacencyList.Add(k.Key, k.Value);
-
+ 
                 return true;
-
+ 
             }
-
+ 
             //Соединение графов
             public static bool ConnectGraf(Graf graf1, Graf graf2, out Graf gr)
             {
@@ -339,52 +339,17 @@ namespace Graf
                         }
                     }
                 }
-
+ 
                 return true;
             }
-
-
-
-
-
-
-            //public void TypeGraf()
-            //{
-            //    int CountVertix = adjacencyList.Count;
-            //    int CountEdge = 0;
-            //    int CCC = CountConnectedComponents();
-            //    foreach(var k in adjacencyList)
-            //    {
-            //        CountEdge += k.Value.Count();
-            //    }
-            //    CountEdge = CountEdge / 2;
-            //    if (CountEdge < CountVertix)
-            //    {
-            //        if(CCC == 1)
-            //        {
-            //            Console.WriteLine("Граф является деревом");
-            //        }
-            //        else if (CCC >1)
-            //        {
-            //            Console.WriteLine("Граф является лесом");
-            //        }
-            //        else
-            //        {
-            //            Console.WriteLine("Ошибка");
-            //        }
-            //    }
-            //    else { Console.WriteLine("Граф не является ни деревом, ни лесом"); }
-
-            //}
-
+ 
             // обход по ширине
             public void BFS(int start, List<int> visited)
             {
-
                 Queue<int> queue = new Queue<int>();
                 visited.Add(start);
                 queue.Enqueue(start);
-
+ 
                 while (queue.Count != 0)
                 {
                     start = queue.Dequeue();
@@ -398,20 +363,20 @@ namespace Graf
                     }
                 }
             }
-
+ 
             // количество сильно связных компонентов
             public int CountConnectedComponents()
             {
                 int count = 0;
                 List<int> vert = new List<int>();
-
+ 
                 List<int> visited = new List<int>();
-
+ 
                 foreach (int i in adjacencyList.Keys)
                 {
                     vert.Add(i);
                 }
-
+ 
                 while (vert.Count > 0)
                 {
                     BFS(vert[0], visited);
@@ -423,73 +388,67 @@ namespace Graf
                 }
                 return count;
             }
-
-            public void DFS(int start, Dictionary<int,int> visited, bool Cycle)
+ 
+            // обход в глубину
+            public void DFS(int start, Dictionary<int, int> visited, int from)
             {
                 visited[start] = 1;
-
-                foreach(var k in adjacencyList[start])
+ 
+                foreach (var k in adjacencyList[start])
                 {
-                    if (visited[k.Key] == 0)
+                    if(k.Key == from)
                     {
-                        DFS(k.Key, visited, Cycle);
+                        continue;
+                    }
+                    else if (visited[k.Key] == 0)
+                    {
+                        DFS(k.Key, visited, start);
                     }
                     else if (visited[k.Key] == 1)
                     {
-                        Cycle = true;
+                        Circle = true;
+                        return;
                     }
                 }
-
+ 
                 visited[start] = 2;
             }
-
-
-            public void TypeGraf()
+ 
+            // определение цикличности
+            public bool TypeGraf()
             {
-                Dictionary<int,int> visited = new Dictionary<int, int>();
-                bool Cycle = false;
-
-                List<int> vert = new List<int>();
-
+                Dictionary<int, int> visited = new Dictionary<int, int>();
+                
+                
                 foreach (int i in adjacencyList.Keys)
                 {
-                    vert.Add(i);
-                    visited.Add(i,0);
+                    visited.Add(i, 0);
                 }
-
-              /*  DFS(vert[0], visited, Cycle);
-                foreach(var i in visited.Keys)
+ 
+             
+                foreach (var i in visited)
                 {
-                    Console.WriteLine(i);
-                }*/
-
-               /* for (int i=0;i<vert.Count; i++)
-                {
-                    if (visited[i]==0)
-                        DFS(vert[i], visited, Cycle);
-                }*/
-               foreach(var i in visited)
-                {
-                    if(i.Value == 0)
+                    
+                    if (i.Value == 0)
                     {
-                        DFS(i.Key, visited, Cycle);
+                        DFS(i.Key, visited, -1);
+ 
+                        if (Circle)
+                        {
+                            return Circle;
+                        }
                     }
+                    
                 }
-
-
-                if (Cycle) Console.WriteLine("Граф имеет цикл");
-                else Console.WriteLine("Граф no имеет цикл");
-
+                return Circle;
             }
-
-            public int CountVertics()
+ 
+            public void Kraskal()
             {
-                return adjacencyList.Keys.Count;
-                
+ 
             }
-
-
-
+ 
+ 
             public void PrintGraph()
             {
                 string res = "";
@@ -516,14 +475,14 @@ namespace Graf
                 Console.WriteLine(res);
             }
         }
-
+ 
         static void Main()
         {
-
-            var path = @"D:\Test.txt";    /*@"D:\ИСП-41\Graf_4.txt";*/ /*@"D:\Graf_3.txt";*/  /*@"D:\ИСП-41\Graf_2.txt";*/ /*@"D:\ИСП-41\Graf_1.txt";*/
-            var path2 = @"D:\Test_2.txt";
+ 
+            var path = @"D:\ИСП-41\Test.txt";    /*@"D:\ИСП-41\Graf_4.txt";*/ /*@"D:\Graf_3.txt";*/  /*@"D:\ИСП-41\Graf_2.txt";*/ /*@"D:\ИСП-41\Graf_1.txt";*/
+            var path2 = @"D:\ИСП-41\Test_2.txt";
             Graf graf = new Graf(path);
-
+ 
             bool flag = true;
             do
             {
@@ -542,7 +501,7 @@ namespace Graf
                 Console.WriteLine("Количество сильных компонентов--11");
                 Console.WriteLine("Завершить-----------------------12");
                 Console.WriteLine("__________________________________");
-
+ 
                 int a;
                 int.TryParse(Console.ReadLine(), out a);
                 switch (a)
@@ -594,20 +553,28 @@ namespace Graf
                         Console.WriteLine("Количество сильно связанных компонентов: " + graf.CountConnectedComponents());
                         break;
                     case 12:
-                        graf.TypeGraf();
+                        if (!graf.TypeGraf() && graf.CountConnectedComponents() > 1)
+                        {
+                            Console.WriteLine("Граф является лесом");
+                        }
+                        else if (!graf.TypeGraf() && graf.CountConnectedComponents() == 1)
+                        {
+                            Console.WriteLine("Граф является деревом");
+                        }
+                        else Console.WriteLine("Граф не является лесом и не является деревом");
                         break;
                     case 13:
                         flag = false;
                         break;
-                        
+ 
                     default:
                         Console.WriteLine("Ошибка. Неверно введена команда");
                         break;
                 }
-
+ 
             } while (flag == true);
-
+ 
         }
-
+ 
     }
 }
